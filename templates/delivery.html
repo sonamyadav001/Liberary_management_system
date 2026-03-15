@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Home Delivery - Shabd Sangrah{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>🚚 Book Home Delivery</h1>
+    <p>Get books delivered within 5km at just ₹5 per kilometer</p>
+</div>
+
+<div class="container section">
+    <div class="grid-2" style="align-items:start;gap:2rem">
+        <!-- Order Form -->
+        <div class="card">
+            <div class="card-header">📦 Request Delivery</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-group">
+                        <label class="form-label">📚 Select Book *</label>
+                        <select name="book_id" class="form-control" required>
+                            <option value="">-- Choose a book --</option>
+                            {% for book in books %}
+                            <option value="{{ book.id }}">{{ book.title }} ({{ book.author }}) — {{ book.available }}
+                                available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📍 Delivery Address *</label>
+                        <input type="text" name="address" class="form-control" required
+                            placeholder="Full delivery address" value="{{ session.get('address', '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📏 Distance from Library (km) *</label>
+                        <input type="number" name="distance" id="distInput" class="form-control" step="0.1" min="0.1"
+                            max="5" placeholder="e.g. 2.5" oninput="calcDelivery()" required>
+                        <div style="font-size:12px;color:var(--text-light);margin-top:4px">⚠️ Max delivery radius: {{
+                            max_km }} km</div>
+                        <div id="distWarning"
+                            style="display:none;color:#dc3545;font-size:13px;font-weight:600;margin-top:6px">❌ Delivery
+                            not available beyond {{ max_km }} km</div>
+                    </div>
+
+                    <!-- Charge Preview -->
+                    <div
+                        style="background:linear-gradient(135deg,var(--cream-dark),var(--cream));border-radius:12px;padding:1.2rem;margin-bottom:1.5rem;border:2px solid var(--orange)20">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div>
+                                <div
+                                    style="font-size:12px;color:var(--text-light);margin-bottom:2px;text-transform:uppercase;letter-spacing:1px">
+                                    Delivery Charge</div>
+                                <div id="deliveryCharge" style="font-size:2rem;font-weight:700;color:var(--brown-dark)">
+                                    ₹0</div>
+                            </div>
+                            <div style="text-align:right;font-size:12px;color:var(--text-light)">
+                                <div>Rate: ₹{{ charge_per_km }}/km</div>
+                                <div>Max: {{ max_km }} km</div>
+                                <div>Loan: 14 days</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center">
+                        🚚 Confirm Delivery Request
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div>
+            <!-- Map visual -->
+            <div class="chart-container mb-3" style="text-align:center">
+                <div class="chart-title" style="justify-content:center">📍 Delivery Coverage Map</div>
+                <div style="position:relative;width:200px;height:200px;margin:1rem auto">
+                    <div style="position:absolute;inset:0;border:2px dashed #90C67F;border-radius:50%;opacity:0.3">
+                    </div>
+                    <div style="position:absolute;inset:20px;border:2px dashed #D47E30;border-radius:50%;opacity:0.5">
+                    </div>
+                    <div style="position:absolute;inset:50px;border:2px dashed #6D3B07;border-radius:50%;opacity:0.7">
+                    </div>
+                    <div style="position:absolute;inset:80px;border:2px solid var(--orange);border-radius:50%"></div>
+                    <div
+                        style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:16px;height:16px;background:var(--orange);border-radius:50%;box-shadow:0 0 0 6px rgba(212,126,48,0.25)">
+                    </div>
+                    <div
+                        style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8px;color:white;z-index:1;font-weight:700;pointer-events:none">
+                        📚</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--text-light)">
+                    <div>🟢 1 km — ₹5 charge</div>
+                    <div>🟡 2–3 km — ₹10–₹15 charge</div>
+                    <div>🔴 4–5 km — ₹20–₹25 charge</div>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="card mb-3">
+                <div class="card-header">ℹ️ Delivery Information</div>
+                <div class="card-body" style="font-size:14px;line-height:2">
+                    <div>📦 <strong>Loan Period:</strong> 14 days from delivery</div>
+                    <div>⏰ <strong>Delivery Time:</strong> 2–4 hours</div>
+                    <div>💰 <strong>Charge:</strong> ₹5 per km</div>
+                    <div>📏 <strong>Max Radius:</strong> 5 km</div>
+                    <div>💳 <strong>Payment:</strong> On delivery (COD)</div>
+                    <div>⚠️ <strong>Fine:</strong> ₹5 per late day</div>
+                </div>
+            </div>
+
+            <!-- My Deliveries -->
+            {% if deliveries %}
+            <div class="card">
+                <div class="card-header">📋 My Delivery History</div>
+                <div class="card-body" style="padding:0">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Distance</th>
+                                <th>Charge</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in deliveries %}
+                            <tr>
+                                <td style="font-size:13px"><strong>{{ d.title[:20] }}</strong></td>
+                                <td style="font-size:13px">{{ d.distance }} km</td>
+                                <td style="font-size:13px">₹{{ d.charge }}</td>
+                                <td>
+                                    <span
+                                        class="badge {{ 'badge-warning' if d.status=='pending' else 'badge-success' if d.status=='delivered' else 'badge-info' }}">
+                                        {{ d.status.title() }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

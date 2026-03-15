@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Delivery Management - Shabd Sangrah{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>🚚 Delivery Management</h1>
+    <p>Manage all home delivery requests</p>
+</div>
+<div class="container section">
+    <div class="card">
+        <div class="card-header">📦 All Delivery Requests ({{ deliveries|length }})</div>
+        <div class="card-body" style="padding:0">
+            {% if deliveries %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Book</th>
+                            <th>User</th>
+                            <th>Address</th>
+                            <th>Distance</th>
+                            <th>Charge</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in deliveries %}
+                        <tr>
+                            <td>#{{ d.id }}</td>
+                            <td style="font-size:13px"><strong>{{ d.title[:20] }}</strong></td>
+                            <td style="font-size:13px">{{ d.uname }}<br><span
+                                    style="color:var(--text-light);font-size:11px">{{ d.email }}</span></td>
+                            <td style="font-size:12px;max-width:150px">{{ d.address[:50] }}</td>
+                            <td style="text-align:center">{{ d.distance }} km</td>
+                            <td style="font-weight:700;color:var(--orange)">₹{{ d.charge }}</td>
+                            <td>
+                                <span
+                                    class="badge {{ 'badge-warning' if d.status=='pending' else 'badge-success' if d.status=='delivered' else 'badge-info' }}">
+                                    {{ d.status.title() }}
+                                </span>
+                            </td>
+                            <td style="font-size:12px;color:var(--text-light)">{{ d.created_at[:10] }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('update_delivery', did=d.id) }}"
+                                    style="display:flex;gap:4px">
+                                    <select name="status" class="form-control"
+                                        style="padding:5px;font-size:12px;min-width:100px">
+                                        {% for s in ['pending','processing','out_for_delivery','delivered','cancelled']
+                                        %}
+                                        <option {{ 'selected' if d.status==s }}>{{ s }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-success btn-sm">✓</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state" style="padding:3rem">
+                <div class="empty-icon">🚚</div>
+                <h3>No Deliveries Yet</h3>
+                <p>Delivery requests will appear here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

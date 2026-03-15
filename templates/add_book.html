@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Add Book - Shabd Sangrah{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>➕ Add New Book</h1>
+    <p>Add a new book to the library catalog</p>
+</div>
+<div class="container section" style="max-width:700px">
+    <div class="card">
+        <div class="card-header">📖 Book Information</div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">📖 Title *</label>
+                        <input type="text" name="title" class="form-control" required placeholder="Book title">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">✍️ Author *</label>
+                        <input type="text" name="author" class="form-control" required placeholder="Author name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">🔢 ISBN</label>
+                        <input type="text" name="isbn" class="form-control" placeholder="978-x-xx-xxxxxx-x">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📂 Category</label>
+                        <select name="category" class="form-control">
+                            {% for cat in
+                            ['Technology','Fiction','History','Biography','Self-Help','Business','Literature','Science','Mathematics','Others']
+                            %}
+                            <option>{{ cat }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📅 Publication Year</label>
+                        <input type="text" name="pub_year" class="form-control" placeholder="e.g. 2023">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📦 Total Copies</label>
+                        <input type="number" name="total_copies" class="form-control" value="1" min="1" max="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🎨 Cover Color</label>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+                        {% for col in ['#D47E30','#6F4E37','#845763','#92E4BA','#90C67F','#E491A6','#6D3B07','#A0826D']
+                        %}
+                        <div onclick="document.getElementById('colorInput').value='{{ col }}';this.parentElement.querySelectorAll('div').forEach(d=>d.style.outline='none');this.style.outline='3px solid var(--brown-dark)'"
+                            style="width:36px;height:36px;background:{{ col }};border-radius:8px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.2);transition:all 0.2s;{% if loop.first %}outline:3px solid var(--brown-dark){% endif %}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="text" name="cover_color" id="colorInput" class="form-control" value="#D47E30"
+                        placeholder="#D47E30">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">📝 Description</label>
+                    <textarea name="description" class="form-control" rows="4"
+                        placeholder="Brief description of the book..."></textarea>
+                </div>
+                <div style="display:flex;gap:10px">
+                    <button type="submit" class="btn btn-primary btn-lg">➕ Add Book</button>
+                    <a href="{{ url_for('admin_books') }}" class="btn btn-secondary btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

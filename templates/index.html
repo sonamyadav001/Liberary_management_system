@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Sabd Sangrah - Home | Library Management System{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container"
+        style="display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:3rem;padding:4rem 20px">
+        <div class="hero-content">
+            <div
+                style="display:inline-block;background:rgba(212,126,48,0.2);padding:6px 16px;border-radius:20px;color:var(--orange);font-size:13px;font-weight:600;margin-bottom:1rem;border:1px solid rgba(212,126,48,0.3)">
+                📖 Welcome to Sabd Sangrah
+            </div>
+            <h1 class="hero-title">
+                Your Digital <span>Library</span> Companion
+            </h1>
+            <p class="hero-sub">
+                Explore thousands of books, manage issues, track returns, and get books delivered to your doorstep
+                within 5km. The future of library management is here.
+            </p>
+            <div class="hero-btns">
+                <a href="{{ url_for('books') }}" class="btn btn-primary btn-lg">📚 Browse Books</a>
+                {% if not session.get('user_id') %}
+                <a href="{{ url_for('register') }}" class="btn btn-outline btn-lg"
+                    style="border-color:var(--cream);color:var(--cream)">✨ Join Free</a>
+                {% else %}
+                <a href="{{ url_for('user_dashboard') }}" class="btn btn-outline btn-lg"
+                    style="border-color:var(--cream);color:var(--cream)">📊 My Dashboard</a>
+                {% endif %}
+            </div>
+            <!-- Quick Stats -->
+            <div style="display:flex;gap:2rem;margin-top:2.5rem;flex-wrap:wrap">
+                <div style="color:var(--cream)">
+                    <div style="font-size:2rem;font-weight:700;color:var(--orange)">{{ stats.total_books }}+</div>
+                    <div style="font-size:0.82rem;opacity:0.7">Books Available</div>
+                </div>
+                <div style="color:var(--cream)">
+                    <div style="font-size:2rem;font-weight:700;color:var(--orange)">{{ stats.total_users }}+</div>
+                    <div style="font-size:0.82rem;opacity:0.7">Active Readers</div>
+                </div>
+                <div style="color:var(--cream)">
+                    <div style="font-size:2rem;font-weight:700;color:var(--orange)">{{ stats.issued_books }}</div>
+                    <div style="font-size:0.82rem;opacity:0.7">Books Issued</div>
+                </div>
+            </div>
+        </div>
+        <!-- Floating Books Visual -->
+        <div class="hero-visual" style="display:flex;justify-content:center">
+            <div class="floating-books">
+                <div class="floating-book fb1">📖</div>
+                <div class="floating-book fb2">📘</div>
+                <div class="floating-book fb3">📗</div>
+                <div class="floating-book fb4">📙</div>
+                <!-- Center decoration -->
+                <div
+                    style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:rgba(255,255,255,0.9)">
+                    <div style="font-size:50px">🏛️</div>
+                    <div
+                        style="font-family:'Dancing Script',cursive;font-size:18px;margin-top:8px;text-shadow:0 2px 8px rgba(0,0,0,0.3)">
+                        Sabd Sangrah</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" style="background:var(--white)">
+    <div class="container">
+        <div class="section-header center">
+            <h2 class="h-section">Why Choose Sabd Sangrah?</h2>
+            <div class="divider"></div>
+            <p class="h-section-sub">Everything you need for a modern library experience</p>
+        </div>
+        <div class="grid-3 mt-3">
+            <div class="card" style="padding:2rem;text-align:center;border-top:4px solid var(--orange)">
+                <div style="font-size:48px;margin-bottom:1rem">🔍</div>
+                <h3 style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;color:var(--text-dark)">Smart
+                    Search</h3>
+                <p style="color:var(--text-light);font-size:0.9rem;line-height:1.6">Search books by title, author, ISBN,
+                    category, or year with real-time autocomplete and filters.</p>
+            </div>
+            <div class="card" style="padding:2rem;text-align:center;border-top:4px solid var(--mauve)">
+                <div style="font-size:48px;margin-bottom:1rem">📱</div>
+                <h3 style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;color:var(--text-dark)">QR Code
+                    System</h3>
+                <p style="color:var(--text-light);font-size:0.9rem;line-height:1.6">Each book has a unique QR code for
+                    instant identification, issue, and return processing.</p>
+            </div>
+            <div class="card" style="padding:2rem;text-align:center;border-top:4px solid var(--green)">
+                <div style="font-size:48px;margin-bottom:1rem">🚚</div>
+                <h3 style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;color:var(--text-dark)">Home
+                    Delivery</h3>
+                <p style="color:var(--text-light);font-size:0.9rem;line-height:1.6">Get books delivered to your doorstep
+                    within a 5km radius at just ₹5 per kilometer.</p>
+            </div>
+            <div class="card" style="padding:2rem;text-align:center;border-top:4px solid var(--mint)">
+                <div style="font-size:48px;margin-bottom:1rem">🤖</div>
+                <h3 style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;color:var(--text-dark)">AI Chatbot
+                </h3>
+                <p style="color:var(--text-light);font-size:0.9rem;line-height:1.6">Ask our intelligent chatbot to find
+                    books, check your issued books, or query library information.</p>
+            </div>
+            <div class="card" style="padding:2rem;text-align:center;border-top:4px solid var(--pink)">
+                <div style="font-size:48px;margin-bottom:1rem">📊</div>
+                <h3 style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;color:var(--text-dark)">Analytics
+                    Dashboard</h3>
+                <p style="color:var(--text-light);font-size:0.9rem;line-height:1.6">Real-time charts and insights for
+                    admins showing trending books, active users, and more.</p>
+            </div>
+            <div class="card" style="padding:2rem;text-align:center;border-top:4px solid var(--brown-light)">
+                <div style="font-size:48px;margin-bottom:1rem">⭐</div>
+                <h3 style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;color:var(--text-dark)">Ratings &
+                    Reviews</h3>
+                <p style="color:var(--text-light);font-size:0.9rem;line-height:1.6">Rate and review books to help fellow
+                    readers discover great reads in our collection.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SEARCH -->
+<section class="section" style="background:linear-gradient(135deg,var(--cream-dark),var(--cream))">
+    <div class="container text-center">
+        <h2 class="h-section mb-2">Find Your Next Book</h2>
+        <p class="h-section-sub mb-3">Search across {{ stats.total_books }}+ titles in our collection</p>
+        <div class="search-bar" style="max-width:600px;margin:0 auto;position:relative">
+            <div class="search-wrapper" style="flex:1;position:relative">
+                <input type="text" id="searchInput" class="form-control"
+                    placeholder="🔍 Search by title, author, ISBN..."
+                    style="font-size:15px;padding:14px 20px;border-radius:14px">
+                <div id="searchResults"></div>
+            </div>
+            <button onclick="window.location.href='/books?q='+document.getElementById('searchInput').value"
+                class="btn btn-primary btn-lg">Search</button>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURED BOOKS -->
+<section class="section">
+    <div class="container">
+        <div class="section-header" style="display:flex;justify-content:space-between;align-items:flex-end">
+            <div>
+                <h2 class="h-section">Featured Books</h2>
+                <div class="divider"></div>
+                <p class="h-section-sub">Handpicked titles from our collection</p>
+            </div>
+            <a href="{{ url_for('books') }}" class="btn btn-outline">View All →</a>
+        </div>
+        <div class="grid-4">
+            {% for book in books %}
+            <a href="{{ url_for('book_detail', book_id=book.id) }}" class="book-card"
+                style="text-decoration:none;color:inherit">
+                <div class="book-cover"
+                    style="background:linear-gradient(135deg, {{ book.cover_color }}22, {{ book.cover_color }}44)">
+                    <div class="book-cover-pattern"
+                        style="background-image:radial-gradient(circle, {{ book.cover_color }} 1px, transparent 1px)">
+                    </div>
+                    <div class="book-cover-inner"
+                        style="background:linear-gradient(150deg, {{ book.cover_color }}, {{ book.cover_color }}99)">
+                        <div class="book-spine-icon">
+                            {% if book.category == 'Technology' %}💻
+                            {% elif book.category == 'Fiction' %}✨
+                            {% elif book.category == 'History' %}🏛️
+                            {% elif book.category == 'Biography' %}👤
+                            {% elif book.category == 'Self-Help' %}🌟
+                            {% elif book.category == 'Business' %}💼
+                            {% elif book.category == 'Literature' %}🖊️
+                            {% else %}📖{% endif %}
+                        </div>
+                        <div class="book-spine-title">{{ book.title[:30] }}</div>
+                    </div>
+                </div>
+                <div class="book-card-body">
+                    <div class="book-card-title">{{ book.title }}</div>
+                    <div class="book-card-author">✍️ {{ book.author }}</div>
+                    <span class="book-card-category">{{ book.category }}</span>
+                    <div class="book-card-footer">
+                        <span class="availability-badge {{ 'available' if book.available > 0 else 'unavailable' }}">
+                            {{ '✅ Available' if book.available > 0 else '❌ Unavailable' }}
+                        </span>
+                        <div class="star-rating">
+                            {% set rating = book.avg_rating or 0 %}
+                            {% for i in range(1,6) %}
+                            <span class="{{ '' if i <= rating else 'star-empty' }}">★</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="section"
+    style="background:linear-gradient(135deg,var(--brown-dark),var(--orange));color:var(--cream);text-align:center">
+    <div class="container">
+        <div style="font-size:60px;margin-bottom:1rem">📚</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:2.5rem;margin-bottom:1rem">Start Your Reading Journey
+        </h2>
+        <p style="opacity:0.85;max-width:500px;margin:0 auto 2rem;line-height:1.7">Join thousands of readers who trust
+            Sabd Sangrah for their reading needs. Register today and get access to our complete library.</p>
+        {% if not session.get('user_id') %}
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+            <a href="{{ url_for('register') }}" class="btn btn-lg"
+                style="background:var(--cream);color:var(--brown-dark);font-weight:700">✨ Register Now</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg"
+                style="border-color:var(--cream);color:var(--cream)">🔐 Login</a>
+        </div>
+        {% else %}
+        <a href="{{ url_for('books') }}" class="btn btn-lg"
+            style="background:var(--cream);color:var(--brown-dark);font-weight:700">📚 Browse Collection</a>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

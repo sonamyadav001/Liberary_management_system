@@ -1,0 +1,166 @@
+{% extends "user_panel_base.html" %}
+{% block title %}User Panel - Sabd Sangrah{% endblock %}
+{% block sidebar_extras %}
+<div style="margin-top:1.5rem;padding-top:1.5rem;border-top:2px solid var(--cream-dark)">
+    <div
+        style="font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">
+        My Stats</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:var(--text-mid)">📖 Issued Now</span>
+            <span style="font-weight:700;color:var(--orange)">{{ issued|length }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:var(--text-mid)">✅ Returned</span>
+            <span style="font-weight:700;color:var(--green)">{{ history|length }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:var(--text-mid)">🚚 Deliveries</span>
+            <span style="font-weight:700;color:var(--mauve)">{{ deliveries|length }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block panel_content %}
+<!-- Live Clock -->
+<div class="grid-2 mb-3">
+    <div class="live-clock">
+        <div style="font-size:0.8rem;opacity:0.7;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">
+            📅 Current Date & Time</div>
+        <div class="clock-time" id="liveTime">--:--:--</div>
+        <div class="clock-day" id="liveDay"></div>
+        <div class="clock-date" id="liveDate"></div>
+    </div>
+    <div class="card" style="padding:1.5rem;display:flex;flex-direction:column;justify-content:center">
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--text-dark);margin-bottom:0.3rem">
+            Welcome back! 👋</h3>
+        <p style="color:var(--text-light);font-size:0.9rem;line-height:1.6">You have <strong
+                style="color:var(--orange)">{{ issued|length }}</strong> book(s) issued.
+            {% set overdue_count = issued|selectattr('days_late','gt',0)|list|length %}
+            {% if overdue_count > 0 %}
+            <span style="color:#dc3545;font-weight:600">⚠️ {{ overdue_count }} overdue!</span>
+            {% endif %}
+        </p>
+        <div style="display:flex;gap:10px;margin-top:1rem;flex-wrap:wrap">
+            <a href="{{ url_for('books') }}" class="btn btn-primary btn-sm">📚 Find Books</a>
+            <a href="{{ url_for('delivery') }}" class="btn btn-secondary btn-sm">🚚 Request Delivery</a>
+            <a href="{{ url_for('chatbot') }}" class="btn btn-secondary btn-sm">🤖 Ask Chatbot</a>
+        </div>
+    </div>
+</div>
+
+<!-- Currently Issued Books -->
+<div class="card mb-3">
+    <div class="card-header">📖 Currently Issued Books <span style="font-size:12px;font-weight:400;opacity:0.8">({{
+            issued|length }} books, 14-day loan
+            period)</span></div>
+    <div class="card-body">
+        {% if issued %}
+        {% for t in issued %}
+        <div class="issued-book-card {{ 'overdue-row' if t.days_late > 0 else '' }}"
+            style="{% if t.days_late > 0 %}border-left:4px solid #dc3545{% else %}border-left:4px solid var(--green){% endif %}">
+            <div class="issued-book-icon"
+                style="background:linear-gradient(135deg,{{ t.cover_color or '#D47E30' }},{{ t.cover_color or '#D47E30' }}99)">
+                {% if t.category == 'Technology' %}💻{% elif t.category == 'Fiction' %}✨{% elif t.category ==
+                'History' %}🏛️{% else %}📖{% endif %}
+            </div>
+            <div class="issued-book-info">
+                <div class="issued-book-title">{{ t.title }}</div>
+                <div class="issued-book-author">by {{ t.author }}</div>
+                <div class="issued-book-meta">
+                    📅 Issued: {{ t.issue_date }} &nbsp;|&nbsp;
+                    ⏰ Due: <strong class="{{ 'overdue-warning' if t.days_late > 0 else '' }}">{{ t.due_date
+                        }}</strong>
+                    {% if t.days_late > 0 %}
+                    &nbsp;|&nbsp; <span class="overdue-warning">⚠️ {{ t.days_late }} days overdue — Fine: ₹{{
+                        t.fine }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <form method="POST" action="{{ url_for('return_book', transaction_id=t.id) }}" style="display:inline">
+                    <button type="submit" class="btn btn-sm {{ 'btn-danger' if t.days_late > 0 else 'btn-success' }}"
+                        onclick="return confirm('Return this book?{% if t.fine > 0 %} Fine of ₹{{ t.fine }} will be charged.{% endif %}')">
+                        ↩️ Return
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h3>No Books Issued</h3>
+            <p>Browse our catalog and issue your first book!</p>
+            <a href="{{ url_for('books') }}" class="btn btn-primary mt-2">Browse Books</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="grid-3 mb-3">
+    <a href="{{ url_for('books') }}" class="quick-action">
+        <div class="qa-icon" style="background:linear-gradient(135deg,var(--orange),#e8943d)">📚</div>
+        <div class="qa-title">Browse Books</div>
+        <div class="qa-sub">20+ categories available</div>
+    </a>
+    <a href="{{ url_for('delivery') }}" class="quick-action">
+        <div class="qa-icon" style="background:linear-gradient(135deg,var(--green),#a8d496)">🚚</div>
+        <div class="qa-title">Home Delivery</div>
+        <div class="qa-sub">₹5/km within 5km</div>
+    </a>
+    <a href="{{ url_for('chatbot') }}" class="quick-action">
+        <div class="qa-icon" style="background:linear-gradient(135deg,var(--mint),#a8f0cc)">🤖</div>
+        <div class="qa-title">Ask Chatbot</div>
+        <div class="qa-sub">24/7 library assistant</div>
+    </a>
+</div>
+
+<!-- Return History -->
+<div class="card">
+    <div class="card-header">📋 Recent Return History</div>
+    <div class="card-body" style="padding:0">
+        {% if history %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>📖 Book</th>
+                        <th>✍️ Author</th>
+                        <th>📅 Issued</th>
+                        <th>✅ Returned</th>
+                        <th>💰 Fine</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in history %}
+                    <tr>
+                        <td><strong>{{ t.title }}</strong></td>
+                        <td>{{ t.author }}</td>
+                        <td>{{ t.issue_date }}</td>
+                        <td>{{ t.return_date }}</td>
+                        <td>
+                            {% if t.fine and t.fine > 0 %}
+                            <span class="badge badge-danger">₹{{ t.fine }}</span>
+                            {% else %}
+                            <span class="badge badge-success">₹0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:2rem">
+            <div class="empty-icon">📋</div>
+            <h3>No Return History</h3>
+            <p>Your returned books will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<br>
+{% endblock %}

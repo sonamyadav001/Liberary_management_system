@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Manage Users - Shabd Sangrah{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>👥 User Management</h1>
+    <p>View and manage library members</p>
+</div>
+<div class="container section">
+    <div class="admin-action-bar">
+        <h2 style="font-family:'Playfair Display',serif;color:var(--text-dark)">Members <span
+                style="color:var(--text-light);font-size:1rem;font-weight:400">({{ users|length }} total)</span></h2>
+        <input type="text" class="form-control" style="max-width:250px" placeholder="🔍 Filter users..."
+            oninput="filterTable(this.value)">
+    </div>
+    <div class="card">
+        <div class="table-wrapper">
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Books Now</th>
+                        <th>Joined</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <div
+                                    style="width:32px;height:32px;background:linear-gradient(135deg,var(--orange),var(--brown-light));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">
+                                    {{ user.name[0] }}</div>
+                                <strong>{{ user.name }}</strong>
+                            </div>
+                        </td>
+                        <td style="font-size:13px">{{ user.email }}</td>
+                        <td style="font-size:13px">{{ user.phone or '—' }}</td>
+                        <td
+                            style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                            {{ user.address or '—' }}</td>
+                        <td style="text-align:center">
+                            <span class="badge {{ 'badge-warning' if user.issued_count > 0 else 'badge-success' }}">{{
+                                user.issued_count }}</span>
+                        </td>
+                        <td style="font-size:12px;color:var(--text-light)">{{ user.created_at[:10] if user.created_at
+                            else '—' }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}"
+                                style="display:inline">
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirmDelete('Remove user {{ user.name }}?')">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    function filterTable(val) {
+        document.querySelectorAll('#userTable tbody tr').forEach(r => {
+            r.style.display = r.textContent.toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

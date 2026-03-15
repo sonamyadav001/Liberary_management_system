@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Reports - Shabd Sangrah{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>📋 Library Reports</h1>
+    <p>Overdue books, fines, and analytics</p>
+</div>
+<div class="container section">
+    <!-- Summary -->
+    <div class="grid-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon pink">⚠️</div>
+            <div>
+                <div class="stat-value">{{ overdue|length }}</div>
+                <div class="stat-label">Overdue Books</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange">💰</div>
+            <div>
+                <div class="stat-value">₹{{ total_fines }}</div>
+                <div class="stat-label">Total Fines Pending</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon brown">📅</div>
+            <div>
+                <div class="stat-value">₹5</div>
+                <div class="stat-label">Fine per Late Day</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">⚠️ Overdue Books Report</div>
+        <div class="card-body" style="padding:0">
+            {% if overdue %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Borrower</th>
+                            <th>Email</th>
+                            <th>Issue Date</th>
+                            <th>Due Date</th>
+                            <th>Days Late</th>
+                            <th>Fine (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in overdue %}
+                        <tr class="overdue-row">
+                            <td><strong>{{ t.title }}</strong></td>
+                            <td>{{ t.uname }}</td>
+                            <td style="font-size:12px">{{ t.email }}</td>
+                            <td>{{ t.issue_date }}</td>
+                            <td><strong style="color:#dc3545">{{ t.due_date }}</strong></td>
+                            <td><span class="badge badge-danger">{{ t.days_late }} days</span></td>
+                            <td><strong style="color:#dc3545">₹{{ t.fine }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state" style="padding:3rem">
+                <div class="empty-icon">✅</div>
+                <h3>No Overdue Books!</h3>
+                <p>All books are within their return dates. Great management!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

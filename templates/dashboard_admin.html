@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - Shabd Sangrah{% endblock %}
+{% block content %}
+
+<div class="dashboard-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background:linear-gradient(135deg,var(--brown-dark),var(--orange))">🛡️
+            </div>
+            <div class="user-name">{{ session.username }}</div>
+            <div class="user-role"
+                style="background:var(--brown-dark);color:var(--cream);padding:2px 12px;border-radius:20px;display:inline-block;font-size:11px;font-weight:700;margin-top:4px;text-transform:uppercase;letter-spacing:1px">
+                Administrator</div>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('admin_dashboard') }}" class="active"><span class="nav-icon">📊</span> Dashboard</a>
+            </li>
+            <li><a href="{{ url_for('admin_books') }}"><span class="nav-icon">📚</span> Manage Books</a></li>
+            <li><a href="{{ url_for('add_book') }}"><span class="nav-icon">➕</span> Add Book</a></li>
+            <li><a href="{{ url_for('admin_users') }}"><span class="nav-icon">👥</span> Manage Users</a></li>
+            <li><a href="{{ url_for('admin_reports') }}"><span class="nav-icon">📋</span> Reports</a></li>
+            <li><a href="{{ url_for('admin_deliveries') }}"><span class="nav-icon">🚚</span> Deliveries</a></li>
+            <li><a href="{{ url_for('books') }}"><span class="nav-icon">🔍</span> Book Catalog</a></li>
+            <li><a href="{{ url_for('logout') }}"><span class="nav-icon">🚪</span> Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div>
+        <!-- Live Clock + Welcome -->
+        <div class="grid-2 mb-3">
+            <div class="live-clock">
+                <div style="font-size:0.8rem;opacity:0.7;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">
+                    📅 Live Dashboard</div>
+                <div class="clock-time" id="liveTime">--:--:--</div>
+                <div class="clock-day" id="liveDay"></div>
+                <div class="clock-date" id="liveDate"></div>
+            </div>
+            <div class="card" style="padding:1.5rem">
+                <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:0.5rem">Admin Control
+                    Center 🛡️</h3>
+                <p style="color:var(--text-light);font-size:0.9rem;line-height:1.6">Welcome, <strong>{{ session.username
+                        }}</strong>. You have <strong style="color:var(--orange)">{{ pending_deliveries }}</strong>
+                    pending delivery request(s).</p>
+                <div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap">
+                    <a href="{{ url_for('add_book') }}" class="btn btn-primary btn-sm">➕ Add Book</a>
+                    <a href="{{ url_for('admin_reports') }}" class="btn btn-secondary btn-sm">📋 Reports</a>
+                    <a href="{{ url_for('admin_deliveries') }}" class="btn btn-warning btn-sm">🚚 Deliveries</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon orange">📚</div>
+                <div>
+                    <div class="stat-value">{{ total_books }}</div>
+                    <div class="stat-label">Total Books</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">✅</div>
+                <div>
+                    <div class="stat-value">{{ available_books }}</div>
+                    <div class="stat-label">Available Books</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon mauve">📖</div>
+                <div>
+                    <div class="stat-value">{{ issued_books }}</div>
+                    <div class="stat-label">Books Issued</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon brown">👥</div>
+                <div>
+                    <div class="stat-value">{{ total_users }}</div>
+                    <div class="stat-label">Registered Users</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pink">💰</div>
+                <div>
+                    <div class="stat-value">₹{{ total_fines }}</div>
+                    <div class="stat-label">Total Fines</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon mint">🚚</div>
+                <div>
+                    <div class="stat-value">{{ pending_deliveries }}</div>
+                    <div class="stat-label">Pending Deliveries</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid-2 mb-3">
+            <div class="chart-container">
+                <div class="chart-title">📊 Books by Category</div>
+                <canvas id="categoryChart" height="200"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">📈 Monthly Issues</div>
+                <canvas id="monthlyChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Popular Books + Recent Transactions -->
+        <div class="grid-2 mb-3">
+            <div class="card">
+                <div class="card-header">🌟 Most Popular Books</div>
+                <div class="card-body" style="padding:0">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Book</th>
+                                <th>Author</th>
+                                <th>Issues</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in popular %}
+                            <tr>
+                                <td><strong style="color:var(--orange)">{{ loop.index }}</strong></td>
+                                <td>{{ b.title[:30] }}</td>
+                                <td>{{ b.author[:20] }}</td>
+                                <td><span class="badge badge-orange">{{ b.issue_count }}</span></td>
+                            </tr>
+                            {% endfor %}
+                            {% if not popular %}
+                            <tr>
+                                <td colspan="4" style="text-align:center;padding:2rem;color:var(--text-light)">No data
+                                    yet</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">📋 Recent Transactions</div>
+                <div class="card-body" style="padding:0">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>User</th>
+                                <th>Due</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in recent_transactions[:6] %}
+                            <tr class="{{ 'overdue-row' if t.days_late > 0 and not t.return_date else '' }}">
+                                <td style="font-size:12px">{{ t.title[:20] }}</td>
+                                <td style="font-size:12px">{{ t.uname[:15] }}</td>
+                                <td style="font-size:12px">{{ t.due_date }}</td>
+                                <td>
+                                    {% if t.return_date %}
+                                    <span class="badge badge-success">Returned</span>
+                                    {% elif t.days_late > 0 %}
+                                    <span class="badge badge-danger">{{ t.days_late }}d late</span>
+                                    {% else %}
+                                    <span class="badge badge-info">Active</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script id="catDataJson" type="application/json">{{ cat_stats| map(attribute = 'category') | list | tojson }}</script>
+<script id="catCntJson" type="application/json">{{ cat_stats| map(attribute = 'cnt') | list | tojson }}</script>
+<script id="monthlyMonthsJson" type="application/json">{{ monthly| map(attribute = 'month') | list | tojson }}</script>
+<script id="monthlyCntJson" type="application/json">{{ monthly| map(attribute = 'cnt') | list | tojson }}</script>
+<script>
+    // Category Chart
+    const catLabels = JSON.parse(document.getElementById('catDataJson').textContent);
+    const catData = JSON.parse(document.getElementById('catCntJson').textContent);
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: catLabels,
+            datasets: [{
+                data: catData,
+                backgroundColor: ['#D47E30', '#6F4E37', '#845763', '#92E4BA', '#90C67F', '#E491A6', '#6D3B07', '#A0826D'],
+                borderWidth: 0
+            }]
+        },
+        options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } }, cutout: '65%' }
+    });
+
+    // Monthly Chart
+    const months = JSON.parse(document.getElementById('monthlyMonthsJson').textContent);
+    const mData = JSON.parse(document.getElementById('monthlyCntJson').textContent);
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'bar',
+        data: {
+            labels: months.reverse(),
+            datasets: [{
+                label: 'Books Issued',
+                data: mData.reverse(),
+                backgroundColor: 'rgba(212,126,48,0.7)',
+                borderColor: '#D47E30',
+                borderWidth: 2,
+                borderRadius: 6
+            }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } }
+    });
+</script>
+{% endblock %}
+{% endblock %}

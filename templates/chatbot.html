@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}AI Chatbot - Shabd Sangrah{% endblock %}
+{% block content %}
+
+<div class="container section" style="max-width:800px">
+    <div class="section-header center">
+        <h2 class="h-section">🤖 Library AI Assistant</h2>
+        <div class="divider"></div>
+        <p class="h-section-sub">Ask me anything about books, your account, or library services!</p>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div>
+                <div style="font-weight:700;font-size:1rem">Sangrah AI Assistant</div>
+                <div style="font-size:12px;opacity:0.8">● Online — Ready to help</div>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <!-- Initial bot message -->
+            <div class="message bot">
+                <div class="message-bubble">
+                    🙏 Namaste! I'm your Shabd Sangrah Library Assistant!<br><br>
+                    I can help you with:<br>
+                    • 🔍 Find books on any topic<br>
+                    • 📖 Check your issued books<br>
+                    • 💰 Fine enquiries<br>
+                    • 🌟 Popular book recommendations<br>
+                    • 🚚 Delivery information<br><br>
+                    How can I assist you today?
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" class="form-control chat-input"
+                placeholder="Ask me anything... e.g. 'Find Python books'" onkeypress="handleKey(event)">
+            <button class="btn btn-primary chat-send" onclick="sendMessage()" id="sendBtn">➤</button>
+        </div>
+    </div>
+
+    <!-- Quick suggestions -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1.5rem;justify-content:center">
+        {% set suggestions = ['Find books on Python', 'What books do I have?', 'Do I have any fines?', 'Most popular
+        books', 'Delivery information', 'Library hours'] %}
+        {% for s in suggestions %}
+        <button onclick="quickAsk('{{ s }}')" class="btn btn-outline btn-sm">{{ s }}</button>
+        {% endfor %}
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+
+    function formatTime() {
+        const now = new Date();
+        return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    }
+
+    function addMessage(text, role) {
+        const div = document.createElement('div');
+        div.className = `message ${role} fade-in`;
+        div.innerHTML = `
+    <div class="message-bubble">${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</div>
+    <div class="message-time">${formatTime()}</div>
+  `;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addTyping() {
+        const div = document.createElement('div');
+        div.id = 'typingIndicator';
+        div.className = 'message bot';
+        div.innerHTML = '<div class="message-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+        const ind = document.getElementById('typingIndicator');
+        if (ind) ind.remove();
+    }
+
+    async function sendMessage() {
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+
+        addMessage(msg, 'user');
+        chatInput.value = '';
+        document.getElementById('sendBtn').disabled = true;
+        addTyping();
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await res.json();
+            removeTyping();
+            setTimeout(() => {
+                addMessage(data.response, 'bot');
+                document.getElementById('sendBtn').disabled = false;
+            }, 200);
+        } catch (e) {
+            removeTyping();
+            addMessage('😔 Sorry, something went wrong. Please try again.', 'bot');
+            document.getElementById('sendBtn').disabled = false;
+        }
+    }
+
+    function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+
+    function quickAsk(text) {
+        chatInput.value = text;
+        sendMessage();
+    }
+</script>
+{% endblock %}
+{% endblock %}

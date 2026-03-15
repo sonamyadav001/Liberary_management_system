@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Edit Book - Shabd Sangrah{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>✏️ Edit Book</h1>
+    <p>Update book information</p>
+</div>
+<div class="container section" style="max-width:700px">
+    <div class="card">
+        <div class="card-header">📖 Editing: {{ book.title }}</div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label class="form-label">📖 Title *</label>
+                        <input type="text" name="title" class="form-control" value="{{ book.title }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">✍️ Author *</label>
+                        <input type="text" name="author" class="form-control" value="{{ book.author }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">🔢 ISBN</label>
+                        <input type="text" name="isbn" class="form-control" value="{{ book.isbn or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📂 Category</label>
+                        <select name="category" class="form-control">
+                            {% for cat in
+                            ['Technology','Fiction','History','Biography','Self-Help','Business','Literature','Science','Mathematics','Others']
+                            %}
+                            <option {{ 'selected' if book.category==cat }}>{{ cat }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📅 Publication Year</label>
+                        <input type="text" name="pub_year" class="form-control" value="{{ book.pub_year or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📦 Total Copies</label>
+                        <input type="number" name="total_copies" class="form-control" value="{{ book.total_copies }}"
+                            min="1" max="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🎨 Cover Color</label>
+                    <input type="text" name="cover_color" class="form-control"
+                        value="{{ book.cover_color or '#D47E30' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">📝 Description</label>
+                    <textarea name="description" class="form-control" rows="4">{{ book.description or '' }}</textarea>
+                </div>
+                <div style="display:flex;gap:10px">
+                    <button type="submit" class="btn btn-primary btn-lg">💾 Save Changes</button>
+                    <a href="{{ url_for('admin_books') }}" class="btn btn-secondary btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
