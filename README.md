@@ -16,4 +16,4 @@ Shabd Sangrah is a modern web-based platform designed to automate library operat
  * git clone https://github.com/sonamyadav001/Liberary_management_system.git
  * pip install -r requirements.txt
  * python app.py
-by-Sonam Yadav
+by-Sonam Yadav 
